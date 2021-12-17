@@ -33,6 +33,7 @@
 #include "InventoryApi.h"
 #include "LoadGameApi.h"
 #include "MpClientPluginApi.h"
+#include "Win32Api.h"
 
 CallNativeApi::NativeCallRequirements g_nativeCallRequirements;
 
@@ -158,7 +159,14 @@ public:
 private:
   std::vector<const char*> GetFileDirs() const
   {
-    return { "Data/Platform/Plugins", "Data/Platform/PluginsDev" };
+    constexpr auto kSkympPluginsDir =
+      "C:/projects/skymp/build/dist/client/Data/Platform/Plugins";
+    if (std::filesystem::exists(kSkympPluginsDir)) {
+      return { kSkympPluginsDir };
+    }
+    std::vector<const char*> dirs = { "Data/Platform/Plugins",
+                                      "Data/Platform/PluginsDev" };
+    return dirs;
   }
 
   void LoadFiles(const std::vector<std::filesystem::path>& pathsToLoad)
@@ -221,6 +229,7 @@ private:
                            DevApi::Register(e, &engine, {}, GetFileDirs());
                            EventsApi::Register(e);
                            BrowserApi::Register(e, browserApiState);
+                           Win32Api::Register(e);
                            InventoryApi::Register(e);
                            CallNativeApi::Register(
                              e, [this] { return nativeCallRequirements; });
