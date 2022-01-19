@@ -114,7 +114,6 @@ void SetupFridaHooks()
 thread_local uint32_t g_queueNiNodeActorId = 0;
 
 bool g_allowHideCursorMenu = true;
-bool g_transparentCursor = false;
 
 static void example_listener_on_enter(GumInvocationListener* listener,
                                       GumInvocationContext* ic)
@@ -165,7 +164,7 @@ static void example_listener_on_enter(GumInvocationListener* listener,
       std::string eventNameStr = *eventName;
       EventsApi::SendPapyrusEventEnter(selfId, eventNameStr);
 
-      if (strcmp(*eventName, "OnUpdate") != 0 && vm) {
+      if (blockEvents && strcmp(*eventName, "OnUpdate") != 0 && vm) {
         vm->attachedScriptsLock.Lock();
         auto it = vm->attachedScripts.find(handle);
 
@@ -178,9 +177,6 @@ static void example_listener_on_enter(GumInvocationListener* listener,
             auto name = info->GetName();
 
             const char* skyui_name = "SKI_"; // start skyui object name
-
-            // RE::ConsoleLog::GetSingleton()->Print(name);
-
             if (strlen(name) >= 4 && name[0] == skyui_name[0] &&
                 name[1] == skyui_name[1] && name[2] == skyui_name[2] &&
                 name[3] == skyui_name[3]) {
@@ -301,19 +297,11 @@ static void example_listener_on_enter(GumInvocationListener* listener,
             bool& visibleFlag = CEFUtils::DX11RenderHandler::Visible();
             bool& focusFlag = CEFUtils::DInputHook::ChromeFocus();
             if (visibleFlag && focusFlag) {
-              if (!g_transparentCursor) {
-                if (FridaHooksUtils::SetMenuNumberVariable(
-                      fsCursorMenu, "_root.mc_Cursor._alpha", 0)) {
-                  g_transparentCursor = true;
-                }
-              }
+              FridaHooksUtils::SetMenuNumberVariable(
+                fsCursorMenu, "_root.mc_Cursor._alpha", 0);
             } else {
-              if (g_transparentCursor) {
-                if (FridaHooksUtils::SetMenuNumberVariable(
-                      fsCursorMenu, "_root.mc_Cursor._alpha", 100)) {
-                  g_transparentCursor = false;
-                }
-              }
+              FridaHooksUtils::SetMenuNumberVariable(
+                fsCursorMenu, "_root.mc_Cursor._alpha", 100);
             }
           }
         }

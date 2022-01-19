@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <fmt/format.h>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -1098,7 +1099,8 @@ espm::Effects::Data espm::Effects::GetData(
       }
       if (!isValid) {
         auto name = parent->GetEditorId(compressedFieldsCache);
-        throw std::runtime_error("Bad effect array. " + *name);
+        throw std::runtime_error(
+          fmt::format("Bad effect array for edid={}", name));
       }
     },
     compressedFieldsCache);
@@ -1127,5 +1129,21 @@ espm::MGEF::Data espm::MGEF::GetData(
     },
     compressedFieldsCache);
 
+  return result;
+}
+
+espm::ALCH::Data espm::ALCH::GetData(
+  CompressedFieldsCache& compressedFieldsCache) const noexcept
+{
+  Data result;
+  result.effects = Effects(this).GetData(compressedFieldsCache).effects;
+  return result;
+}
+
+espm::INGR::Data espm::INGR::GetData(
+  CompressedFieldsCache& compressedFieldsCache) const noexcept
+{
+  Data result;
+  result.effects = Effects(this).GetData(compressedFieldsCache).effects;
   return result;
 }
